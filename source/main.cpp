@@ -4,9 +4,11 @@
 #include <filesystem>
 #include <vector>
 #include <algorithm>
+#include <utility>
+#include <map>
+#include <pthread.h>
 
 
-//check
 namespace fs = std::filesystem;
 using file_str_list = std::vector<std::string>;
 
@@ -18,7 +20,7 @@ inline void usage() {
 
 bool check_file(std::string file_name)
 {
-	const std::vector<std::string> file_extension = {".cpp", ".hpp", ".c", ".h"};
+	const std::vector<std::string> file_extension = {".cpp", ".hpp", ".c", ".h", ".py", ".sh"};
 	for(const auto& ext : file_extension) {
 		if(file_name.find(ext) != std::string::npos) {
 			return true;
@@ -40,6 +42,16 @@ uint32_t find_files(fs::path& dir, file_str_list& file_list) {
 	}
 	return loaded_files;
 }
+
+std::string find_todos(file_str_list& file_list) {
+	//std::string 
+	std::map<std::string, uintmax_t> file_sizes;
+	for(auto file : file_list) {
+		file_sizes.insert(std::make_pair(file, fs::file_size(fs::path(file))));
+	}
+	split_and_run();
+
+ }
 
 int main(int argc, char *argv[]) {
 	if(argc != 2) {
@@ -64,13 +76,12 @@ int main(int argc, char *argv[]) {
 
 	file_str_list file_list;
 	if(find_files(path_to_director, file_list) == 0) {
-		std::cout << "Cannot find files" << std::endl;
-	}
-	for(auto x : file_list) {
-		std::cout << x << std::endl;
+		std::cerr << "Cannot find any file with source code."
+		<< "Supported lanugange: C++, C, Python, Shell Script" << std::endl;
+		return EXIT_FAILURE;
 	}
 
-	
+	find_todos(file_list);
 
 	//initscr();
 	//cbreak();
